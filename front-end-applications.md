@@ -69,9 +69,10 @@ In the index.js file you need to initialize and pull in the application credenti
 
 Setup your imports, including the IndyKite UI SDK
 ```ts
-import React from "react";
-import { Switch, Route, Link, useNavigate, BrowserRouter } from "react-router-dom";
-import { IKUIInit, IKUIUserAPI } from "@indykiteone/jarvis-sdk-web";
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { IKUIInit } from "@indykiteone/jarvis-sdk-web";
+import { BrowserRouter as Router } from "react-router-dom";
 ```
 
 Initialize with the values from the environment file 
@@ -81,15 +82,28 @@ IKUIInit({
   applicationId: process.env.REACT_APP_APPLICATION_ID,
   tenantId: process.env.REACT_APP_TENANT_ID,
 });
-ReactDOM.render(
+
+const root = ReactDOM.createRoot(
+  document.getElementById("root")
+);
+root.render(
   <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+    <Router>
+      <App />
+    </Router>
+  </React.StrictMode>
 );
 ```
 
 While we are here, let’s go ahead import a couple of local files, that we’ll create a little later on. 
+
+On top of App.js, add :
+
+```ts
+import React from 'react';
+import { Routes, Route, Link, useNavigate, BrowserRouter } from "react-router-dom"; 
+import { IKUIInit, IKUIUserAPI } from "@indykiteone/jarvis-sdk-web";
+```
 
 With the IndyKite SDK you have the option of using the out-of-the-box UI or creating your own custom UI.  In this example we are going to use the former.  
 
@@ -109,6 +123,49 @@ function App() {
 ```
 
 In the App function …
+
+Before the return, add :
+```ts
+  const [token, setToken] = React.useState(null);
+  const [refreshToken, setRefreshToken] = React.useState(null);
+```
+Then inside the return, add the Route:
+```ts
+      <Routes>
+      <Route path="/" exact element={<Home />}> </Route> 
+      <Route path="/login" element={<Login setToken={setToken} />} />
+      <Route path="/registration" element={<Registration setToken={setToken} />} />
+      <Route path="/authenticated" element={<Authenticated setToken={setToken} />} />
+      <Route path="/callback" element={<Callback setToken={setToken} />}> </Route>
+      </Routes>
+```
+So App.js is now: 
+
+```ts
+function App() {
+  
+  const [token, setToken] = React.useState(null);
+  const [refreshToken, setRefreshToken] = React.useState(null);
+  return (
+    <div>
+      <header>
+        <h1>Sample Login App</h1>
+      </header>
+  
+      <Routes>
+      <Route path="/" exact element={<Home />}> </Route> 
+      <Route path="/login" element={<Login setToken={setToken} />} />
+      <Route path="/registration" element={<Registration setToken={setToken} />} />
+      <Route path="/authenticated" element={<Authenticated setToken={setToken} />} />
+      <Route path="/callback" element={<Callback setToken={setToken} />}> </Route> 
+    
+    
+      </Routes>
+    </div>
+  );
+}
+```
+
 
 Set these constants, we’ll use these in the sample app
 ```ts
