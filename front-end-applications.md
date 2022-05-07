@@ -100,9 +100,10 @@ While we are here, let’s go ahead import a couple of local files, that we’ll
 On top of App.js, add :
 
 ```ts
-import React from 'react';
+import React, { useEffect } from "react";
 import { Routes, Route, Link, useNavigate, BrowserRouter } from "react-router-dom"; 
 import { IKUIInit, IKUIUserAPI } from "@indykiteone/jarvis-sdk-web";
+import {useLocation} from 'react-router-dom';
 ```
 
 With the IndyKite SDK you have the option of using the out-of-the-box UI or creating your own custom UI.  In this example we are going to use the former.  
@@ -129,14 +130,17 @@ Before the return, add :
   const [token, setToken] = React.useState(null);
   const [refreshToken, setRefreshToken] = React.useState(null);
 ```
-Then inside the return, add the Route:
+Then inside the return, add the Route inside a Routes.
+We’ll use routes to create the endpoints that we need for this application.  
+Each route will need a corresponding function so let’s add these routes now.  Add them after the line with “return (” inside a div or at least a <>
+
 ```ts
       <Routes>
       <Route path="/" exact element={<Home />}> </Route> 
       <Route path="/login" element={<Login setToken={setToken} />} />
       <Route path="/registration" element={<Registration setToken={setToken} />} />
-      <Route path="/authenticated" element={<Authenticated setToken={setToken} />} />
-      <Route path="/callback" element={<Callback setToken={setToken} />}> </Route>
+      <Route path="/authenticated" element={<Authenticated />} />
+      <Route path="/callback" element={<Callback setToken={setToken} />} />
       </Routes>
 ```
 So App.js is now: 
@@ -146,6 +150,7 @@ function App() {
   
   const [token, setToken] = React.useState(null);
   const [refreshToken, setRefreshToken] = React.useState(null);
+  
   return (
     <div>
       <header>
@@ -156,10 +161,8 @@ function App() {
       <Route path="/" exact element={<Home />}> </Route> 
       <Route path="/login" element={<Login setToken={setToken} />} />
       <Route path="/registration" element={<Registration setToken={setToken} />} />
-      <Route path="/authenticated" element={<Authenticated setToken={setToken} />} />
-      <Route path="/callback" element={<Callback setToken={setToken} />}> </Route> 
-    
-    
+      <Route path="/authenticated" element={<Authenticated />} />
+      <Route path="/callback" element={<Callback setToken={setToken} />} />
       </Routes>
     </div>
   );
@@ -167,14 +170,47 @@ function App() {
 ```
 
 
-Set these constants, we’ll use these in the sample app
+Now we add the Home function for the route element Home
 ```ts
-const navigate = useNavigate();
-const [token, setToken] = React.useState(null);
-const [refreshToken, setRefreshToken] = React.useState(null);
+function Home() {
+  const onLoginStart = React.useCallback(() => {
+    const uiSwitch = localStorage.getItem("whatUiToUse");
+    localStorage.clear();
+    localStorage.setItem("whatUiToUse", uiSwitch);
+   }, []);
+  return (
+    <>
+       <div className="App">
+        <h2>Welcome to the homepage!</h2>
+        <p>You can do this, I believe in you.</p>
+      </div>
+      <nav>
+        <Link to="/login">
+           <button id="start-btn" onClick={onLoginStart}>
+             Start
+           </button>
+          </Link>
+      </nav>
+    </>
+  );
+}
+```
+Now we add the Authenticated function for the route element Authenticated.
+
+```ts
+function Authenticated() {
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [token, setToken] = React.useState(null);
+  const [data, setData] = React.useState(null);
+  const [refreshToken, setRefreshToken] = React.useState(null);
+ 
+ 
+}
 ```
 
-Within the App function we need a few callbacks to handle login, logout, and token refresh. 
+Within the Authenticated function we need a few callbacks to handle login, logout, and token refresh. 
 
 ```ts
 const onLogout = React.useCallback(() => {
@@ -182,90 +218,67 @@ const onLogout = React.useCallback(() => {
       .then(() => {
         setToken(null);
         setRefreshToken(null);
-        navigate.push("/login");
+        navigate("/login");
       })
       .catch(console.log);
   }, [navigate]);
-```
 
-```ts
- const onRefreshToken = React.useCallback(() => {
-    IKUIUserAPI.getValidAccessToken()
+  const onRefreshToken = React.useCallback(() => {
+    IKUIUserAPI.getValidAccessToken({ refreshToken: refreshToken })
       .then((token) => {
         setRefreshToken(token);
-        setToken(null);
+        //setToken(null);
       })
       .catch(console.log);
   }, []);
 ```
 
-```ts
- const onLoginStart = React.useCallback(() => {
-   const uiSwitch = localStorage.getItem("whatUiToUse");
-   localStorage.clear();
-   localStorage.setItem("whatUiToUse", uiSwitch);
+
+Now we add a useEffect Hook to retrieve info from Login and Registration and add states to the function components
+```typescript
+ useEffect(() => {
+    if (location.state) {
+      setData(new Map(Object.entries(location.state.data)));
+      setToken(location.state.token);  
+      setRefreshToken(location.state.refresh_token);  
+    }
   }, []);
 ```
 
-
-Now create a return object that contains the html that will be displayed in the browser.  You can wrap the BrowserRouter tags with some other HTML tags for additional formatting if you desire. Replace this block of code with the sample code shown below it.
-
-We’ll use routes to create the endpoints that we need for this application.  Each route will need a corresponding function so let’s add these routes now.  Add them before the line with “return (”.
-
-Open src/app.js and update it as follows:
-
-```typescript
-<BrowserRouter>
-      <Switch>
-      <Route path="/" exact>
-          <Link to="/login">
-           <button id="start-btn" onClick={onLoginStart}>
-             Start
-           </button>
-          </Link>
-      </Route>
-      <Route path="/login">
-           <Login setToken={setToken} />
-      </Route>
-      <Route path="/registration">
-           <Registration setToken={setToken} />
-       </Route>
-       <Route path="/authenticated">
-          {token || refreshToken ? (
-            <div className="buttons-wrapper">
-              <button id="refresh-token-btn" onClick={onRefreshToken}>
-                Refresh token
-              </button>
-              <button id="logout-btn" onClick={onLogout}>
-                Logout
-              </button>
-            </div>
-          ) : (
-            <>
-              <h5>No token found</h5>
-              <Link to="/login">go to login</Link>
-            </>
-          )}
-      </Route>
-      </Switch>
-</BrowserRouter>
-```
-
-Now we need some code to handle displaying the token values to the UI.  Put this code in after the closing switch tag and before the closing BrowserRouter tag.
+Now we need some code to handle displaying the token values to the UI.  Put this code in the return:
 
 ```html
-{token && (
+ return (
+    <>
+    {token || refreshToken ? (
+      <>
+      <div className="buttons-wrapper">
+        <button id="refresh-token-btn" onClick={onRefreshToken}>
+          Refresh token
+        </button>
+        <button id="logout-btn" onClick={onLogout}>
+          Logout
+        </button>
+      </div>
+      </>
+    ) : (
+      <>
+        <h5>No token found</h5>
+        <Link to="/login">go to login</Link>
+      </>
+    )}
+    {data && (
         <div className="responseWrapper">
           <h4>Token</h4>
-          <p id="token-field">{token.token}</p>
+          <p id="token-field">{data.get('token')}</p>
           <h4>Refresh Token</h4>
-          <p id="refresh-token-field">{token.refresh_token}</p>
+          <p id="refresh-token-field">{data.get('refresh_token')}</p>
           <h4>Token Type</h4>
-          <p id="token-type-field">{token.token_type}</p>
+          <p id="token-type-field">{data.get('token_type')}</p>
           <h4>Token Expiration (timestamp)</h4>
-          <p id="token-expiration-field">{token.expiration_time}</p>
+          <p id="token-expiration-field">{data.get('expiration_time')}</p>
           <h4>Token Expires In (seconds)</h4>
-          <p id="token-expires-in-field">{token.expires_in}</p>
+          <p id="token-expires-in-field">{data.get('expires_in')}</p>
         </div>
       )}
       {refreshToken && (
@@ -274,34 +287,47 @@ Now we need some code to handle displaying the token values to the UI.  Put this
           <p id="token-field">{refreshToken}</p>
         </div>
       )}
+    </>
+  );
 ```
 
 You’ll notice that the login and registration routes are calling additional logic.  These point to the two local files that we imported earlier.  We’ll go ahead and create those now.
 
 To render the Login we can use the method renderLogin(). This method will create a login UI based on the default AuthFlow that you have configured for this AppSpace in the AdminConsole. This method has several properties and labels that can be used to customize the login form that is displayed to the user.
 
-In the src directory create another directory called “components”.  Save the Login.js and Registration.js files to the new directory that you just created.  
+In the src directory create another directory called “components”.  Save the Login.js and Registration.js files to the components that you just created.  
+Additionally, there are a couple of properties that can be used to add additional helper text to the form fields:
+
+* userInputNote
+* passwordInputNote 
+* passwordCheckInputNote
+
+**Note**: _These are temporary properties and could be removed in future versions._
 
 Login.js
 ```ts
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { IKUICore } from "indykite-ui-sdk";
-const Login = ({ setToken }) => {
+import { IKUICore } from "@indykiteone/jarvis-sdk-web";
+
+  const Login = ({ setToken }) => {
   const navigate = useNavigate();
   const onSuccess = React.useCallback(
     (data) => {
-      setToken(data);
-      navigate("/authenticated");
+      navigate("/authenticated", {state:{token:data.token, refresh_token:data.refresh_token, data: data}});
     },
-    [setToken, history],
+    [navigate],
   );
+
   useEffect(() => {
     IKUICore.renderLogin({
       renderElementSelector: ".login-container",
       onSuccessLogin: onSuccess,
       redirectUri: "/callback",
       forgotPasswordPath: "/forgot",
+      userInputNote: "Username must be in email form",
+	  passwordInputNote: "Password must be at least 8 characters",
+	  passwordCheckInputNote: "Passwords must match" 
       // labels: {
       //   username: "Custom Username",
       //   password: "Custom Password",
@@ -312,6 +338,8 @@ const Login = ({ setToken }) => {
       // }
     });
   });
+
+  
   return (
     <div>
       <div className="login-container" style={{ width: 350 }} />
@@ -321,41 +349,23 @@ const Login = ({ setToken }) => {
 export default Login;
 ```
 
-Additionally, there are a couple of properties that can be used to add additional helper text to the form fields:
-
-* userInputNote
-* passwordInputNote 
-* passwordCheckInputNote
-
-These can be added like this:  
-
-```ts
-   useEffect(() => {
-	 IKUICore.renderLogin({
-      renderElementSelector: ".login-container",
-      onSuccessLogin: onSuccess,
-      redirectUri: "/callback",
-      forgotPasswordPath: "/forgot",
-	  userInputNote: "Username must be in email form",
-	  passwordInputNote: "Password must be at least 8 characters",
-	  passwordCheckInputNote: "Passwords must match"
-```
-**Note**: _These are temporary properties and could be removed in future versions._
 Next, let's add the registration UI code.  Similar to the login, you can use the renderRegister() method to automatically generate the registration flow, based on the registration flow configured in the default AuthFlow in your AppSpace.
 Registration.js
 ```ts
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { IKUICore } from "indykite-ui-sdk";
+import { IKUICore } from "@indykiteone/jarvis-sdk-web";
+
 const Registration = ({ setToken }) => {
   const navigate = useNavigate();
   const onSuccess = React.useCallback(
     (data) => {
-      setToken(data);
-      navigate("/authenticated");
+      console.log(data) ;  
+      navigate("/authenticated", {state:{token:data.token, refresh_token:data.refresh_token, data: data}});
     },
-    [setToken, navigate],
+    [navigate],
   );
+
   useEffect(() => {
     IKUICore.renderRegister({
       renderElementSelector: ".register-container",
@@ -380,6 +390,7 @@ const Registration = ({ setToken }) => {
   );
 };
 export default Registration;
+
 ```
 At this point you can start your application with yarn. 
 To start:
