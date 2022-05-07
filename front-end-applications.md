@@ -398,4 +398,6 @@ To start:
 yarn start
 ```
 If there were no issues with your code, this will open a browser with your application running where you should see a login form similar to what is shown below.
+
+
 ![Login](images/login.jpg)
