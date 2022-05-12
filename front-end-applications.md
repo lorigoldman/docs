@@ -214,7 +214,7 @@ Within the Authenticated function we need a few callbacks to handle login, logou
 
 ```ts
 const onLogout = React.useCallback(() => {
-    IKUIUserAPI.logoutCurrentUser()
+    IKUIUserAPI.logoutUser()
       .then(() => {
         setToken(null);
         setRefreshToken(null);
@@ -238,11 +238,11 @@ Now we add a useEffect Hook to retrieve info from Login and Registration and add
 ```typescript
  useEffect(() => {
     if (location.state) {
-      setData(new Map(Object.entries(location.state.data)));
+      setData(location.state.data);
       setToken(location.state.token);  
       setRefreshToken(location.state.refresh_token);  
     }
-  }, []);
+  }, [location.state]);
 ```
 
 Now we need some code to handle displaying the token values to the UI.  Put this code in the return:
@@ -270,15 +270,15 @@ Now we need some code to handle displaying the token values to the UI.  Put this
     {data && (
         <div className="responseWrapper">
           <h4>Token</h4>
-          <p id="token-field">{data.get('token')}</p>
+           <p id="token-field">{data?.token}</p>
           <h4>Refresh Token</h4>
-          <p id="refresh-token-field">{data.get('refresh_token')}</p>
+          <p id="refresh-token-field">{data?.refresh_token}</p>
           <h4>Token Type</h4>
-          <p id="token-type-field">{data.get('token_type')}</p>
+          <p id="token-type-field">{data?.token_type}</p>
           <h4>Token Expiration (timestamp)</h4>
-          <p id="token-expiration-field">{data.get('expiration_time')}</p>
+          <p id="token-expiration-field">{data?.expiration_time}</p>
           <h4>Token Expires In (seconds)</h4>
-          <p id="token-expires-in-field">{data.get('expires_in')}</p>
+          <p id="token-expires-in-field">{data?.expires_in}</p>
         </div>
       )}
       {refreshToken && (
@@ -320,7 +320,7 @@ import { IKUICore } from "@indykiteone/jarvis-sdk-web";
   );
 
   useEffect(() => {
-    IKUICore.renderLogin({
+    IKUICore.render({
       renderElementSelector: ".login-container",
       onSuccessLogin: onSuccess,
       redirectUri: "/callback",
@@ -367,7 +367,7 @@ const Registration = ({ setToken }) => {
   );
 
   useEffect(() => {
-    IKUICore.renderRegister({
+    IKUICore.render({
       renderElementSelector: ".register-container",
       onSuccessRegistration: onSuccess,
       redirectUri: "/callback",
