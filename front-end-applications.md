@@ -1,61 +1,64 @@
 # React: Add Registration and Login to your React App
 
 ## About
-To quickly integrate registration and login into your React application, IndyKite has created a modern, easy-to-use JavaScript UI-SDK.  Using the UI-SDK removes the complexity of building login and registration flows into your application.  Coupled with the customizable, drag-and-drop authentication flows built in the Admin Console you can use the SDK to add login and registration to your application in minutes.
+To quickly integrate registration and login into your React application, IndyKite has a modern, easy-to-use JavaScript UI-SDK. The UI-SDK removes the complexity of building login and registration flows into your application. When coupled with the customizable, drag-and-drop authentication flows built in the Admin Console, you can add login and registration to your application in minutes.
 
 To use this quickstart, you'll need:
-* A free IndyKite account or log in to the IndyKite Admin Console
-* An existing React application or you can setup one with Create-React-App (instructions in the next section)
+* A free IndyKite account, or, log in to the IndyKite Admin Console
+* An existing React application, or, set one up with Create-React-App (instructions in the next section)
 
 ## Prerequisites
-* From the [IndyKite Admin Console](https://indykite.id), configure an AppSpace and downloaded your credential configuration.  Keep this file handy since you'll need to refer to it in a few steps. ([_How do I do this?_](https://indykite.one/blog/1253ad39-be3b-4652-88cb-85ad4b0e9232/?category=43af05a3-17b7-46e4-8995-6354f7f0212f)).
+* From the [IndyKite Admin Console](https://indykite.id), configure an AppSpace and download your credential configuration. Keep this file handy, since you'll need to refer to it in a few steps. ([_How do I do this?_](https://indykite.one/blog/1253ad39-be3b-4652-88cb-85ad4b0e9232/?category=43af05a3-17b7-46e4-8995-6354f7f0212f)).
 * Install Node.js (_Visit https://nodejs.org for instructions for your specific operating system_)
-* Create a project folder. If you don't already have an application that you want to integrate then you can quickly create one. (_Using [create-react-app](https://github.com/facebook/create-react-app "Create React App") is a great way to bootstrap and get up and running quickly._)
+* Create a project folder. If you don't already have an application that you want to integrate, you can quickly create one. (_Using [create-react-app](https://github.com/facebook/create-react-app "Create React App") is a great way to bootstrap and get up and running quickly._)
 
 _for example:_
+
 ```bash
 yarn create react-app my-app
 ```
 
-You can verify this was installed correctly by running:
+Verify this was installed correctly by running:
+
 ```bash
 yarn start
 ```
 
 
 ## Install IndyKite SDK
-To install the front-end SDK and make it available to your application type the following command into a terminal window or command prompt, in the directory you created in the previous step:
+To install the front-end SDK and make it available to your application, type the following command into a terminal window or command prompt, in the directory you created in the previous step:
 
 ```bash
 yarn add @indykiteone/jarvis-sdk-web
 ```
 
-In this sample we also use some additional libraries that you’ll need to install as well.
+In this sample, we also use some additional libraries you’ll need to install as well:
 
 ```bash
 yarn add react-router-dom
 yarn add browser-router
 ```
 
-A quick way to verify that you have the correct version of the SDK you can use the 'yarn list' command to view all of the packages installed.
+A quick way to verify that you have the correct version of the SDK is to use the 'yarn list' command to view all of the installed packages:
 
 ```bash
 yarn list | grep indykite
 ```
 
-This will return the name and version number of the IndyKite SDK package that has been added to the package.json, to be used in your app
+This returns the name and version number of the IndyKite SDK package that was added to the package.json, to be used in your app:
 
 ```bash
 @indykiteone/jarvis-sdk-web@0.1.14
 ```
-_Note: your version may be different then what you see in the above example._
+_Note: your version may be different than what you see in the above example._
 
 ## Configure your environment with the agent config file
-Using the values from the application agent credential config file that you downloaded from the Admin console, create a new file, in the project folder, called .env (dot env).  This file will need the necessary parameters your application will need to connect to the right application space and tenant. For each property copy the corresponding value from the downloaded file. 
+Using the values from the application agent credential config file you downloaded from the Admin console, create a new file in the project folder, called .env (dot env). This file needs the necessary parameters your application uses to connect to the right application space and tenant. For each property, copy the corresponding value from the downloaded file. 
 
-_Note: Typically you would store this credential in a back end part of your application as any sensitive cannot be secured in a front-end app.  This is just for demonstrative purposes._
+_Note: Typically, you would store this credential in a back-end of your application, as any sensitive information cannot be secured in a front-end app.  This is just for demonstrative purposes._
 
 Example:
+
 ```bash
 REACT_APP_BASE_URI=https://jarvis.indykite.com
 REACT_APP_APPLICATION_ID=696e6479-6b69-4465-xxxx-020f00000000
@@ -63,11 +66,12 @@ REACT_APP_TENANT_ID=696e6479-6b69-4465-xxxx-030f00000001
 ```
 
 ## Integrate IndyKite with your application
-If you change into the src directory of your application folder (my-app/src) you will see that a couple of default files were created for you.  We are specifically interested in the App.js and index.js files.  We have a few changes that we’ll add to those files. 
+If you change into the src directory of your application folder (my-app/src), you will see some default files were created for you. We are specifically interested in the App.js and index.js files. We'll need to make a few changes to those files. 
 
-In the index.js file you need to initialize and pull in the application credentials from the environment file that you created earlier. We’ll do that by reading from the .env file at runtime. Add the following code snippets to src/index.js.
+In the index.js file, initialize and pull in the application credentials from the environment file you created earlier. We’ll do that by reading from the .env file at runtime. Add the following code snippets to src/index.js.
 
-Setup your imports, including the IndyKite UI SDK
+Set up your imports, including the IndyKite UI SDK:
+
 ```ts
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -75,7 +79,8 @@ import { IKUIInit } from "@indykiteone/jarvis-sdk-web";
 import { BrowserRouter as Router } from "react-router-dom";
 ```
 
-Initialize with the values from the environment file 
+Initialize with the values from the environment file:
+
 ```ts
 IKUIInit({
   baseUri: process.env.REACT_APP_BASE_URI,
@@ -95,9 +100,9 @@ root.render(
 );
 ```
 
-While we are here, let’s go ahead import a couple of local files, that we’ll create a little later on. 
+While we are here, let’s go ahead and import some local files that we’ll create later. 
 
-On top of App.js, add :
+On top of App.js, add:
 
 ```ts
 import React, { useEffect } from "react";
@@ -106,18 +111,19 @@ import { IKUIInit, IKUIUserAPI } from "@indykiteone/jarvis-sdk-web";
 import {useLocation} from 'react-router-dom';
 ```
 
-With the IndyKite SDK you have the option of using the out-of-the-box UI or creating your own custom UI.  In this example we are going to use the former.  
+You can use the out-of-the-box UI or create your own custom UI with the IndyKite SDK.  In this example, we will use the former.  
 
-The following two pages will contain references to the SDK methods that automatically generate the UI components. 
+The following two pages will contain references to the SDK methods that automatically generate the UI components:
 
 ```ts
 import Login from "./components/Login";
 import Registration from "./components/Registration";
 ```
 
-Lets implement some basic access control functionality into our app.  Namely, user registration and login.
+Let's implement some basic access control functionality into our app; namely, user registration and login.
 
-There should already be a function called App().   
+There should already be a function called App():
+
 ```ts
 function App() {
 }
@@ -125,14 +131,15 @@ function App() {
 
 In the App function …
 
-Before the return, add :
+Before the return, add:
+
 ```ts
   const [token, setToken] = React.useState(null);
   const [refreshToken, setRefreshToken] = React.useState(null);
 ```
-Then inside the return, add the Route inside a Routes.
+Inside the return, add the route inside a route.
 We’ll use routes to create the endpoints that we need for this application.  
-Each route will need a corresponding function so let’s add these routes now.  Add them after the line with “return (” inside a div or at least a <>
+Each route will need a corresponding function, so let’s add them now.  Add them after the line with “return (” inside a div, or at least a <>:
 
 ```ts
       <Routes>
@@ -143,7 +150,7 @@ Each route will need a corresponding function so let’s add these routes now.  
       <Route path="/callback" element={<Callback setToken={setToken} />} />
       </Routes>
 ```
-So App.js is now: 
+So, App.js is now: 
 
 ```ts
 function App() {
@@ -170,7 +177,8 @@ function App() {
 ```
 
 
-Now we add the Home function for the route element Home
+Now, we add the Home function for the route element Home:
+
 ```ts
 function Home() {
   const onLoginStart = React.useCallback(() => {
@@ -195,7 +203,7 @@ function Home() {
   );
 }
 ```
-Now we add the Authenticated function for the route element Authenticated.
+Add the Authenticated function for the route element Authenticated:
 
 ```ts
 function Authenticated() {
@@ -210,7 +218,7 @@ function Authenticated() {
 }
 ```
 
-Within the Authenticated function we need a few callbacks to handle login, logout, and token refresh. 
+Within the Authenticated function, we need a few callbacks to handle login, logout, and token refresh:
 
 ```ts
 const onLogout = React.useCallback(() => {
@@ -234,7 +242,8 @@ const onLogout = React.useCallback(() => {
 ```
 
 
-Now we add a useEffect Hook to retrieve info from Login and Registration and add states to the function components
+Add a useEffect hook to retrieve info from login and registration, and add states to the function components:
+
 ```typescript
  useEffect(() => {
     if (location.state) {
@@ -245,7 +254,7 @@ Now we add a useEffect Hook to retrieve info from Login and Registration and add
   }, [location.state]);
 ```
 
-Now we need some code to handle displaying the token values to the UI.  Put this code in the return:
+We need some code to handle displaying the token values to the UI. Put this code in the return:
 
 ```html
  return (
@@ -291,12 +300,12 @@ Now we need some code to handle displaying the token values to the UI.  Put this
   );
 ```
 
-You’ll notice that the login and registration routes are calling additional logic.  These point to the two local files that we imported earlier.  We’ll go ahead and create those now.
+You’ll notice that the login and registration routes are calling additional logic. These point to the two local files that we imported earlier. We’ll go ahead and create those now.
 
-To render the Login we can use the method renderLogin(). This method will create a login UI based on the default AuthFlow that you have configured for this AppSpace in the AdminConsole. This method has several properties and labels that can be used to customize the login form that is displayed to the user.
+To render the login, we can use the method renderLogin(). This method will create a login UI based on the default AuthFlow that you have configured for this AppSpace in the AdminConsole. This method has several properties and labels that can be used to customize the login form that is displayed to the user.
 
-In the src directory create another directory called “components”.  Save the Login.js and Registration.js files to the components that you just created.  
-Additionally, there are a couple of properties that can be used to add additional helper text to the form fields:
+In the src directory, create another directory called “components”.  Save the login.js and registration.js files to the components that you just created.  
+Additionally, there are a few properties that can be used to add additional helper text to the form fields:
 
 * userInputNote
 * passwordInputNote 
@@ -304,7 +313,8 @@ Additionally, there are a couple of properties that can be used to add additiona
 
 **Note**: _These are temporary properties and could be removed in future versions._
 
-Login.js
+Login.js:
+
 ```ts
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -349,8 +359,10 @@ import { IKUICore } from "@indykiteone/jarvis-sdk-web";
 export default Login;
 ```
 
-Next, let's add the registration UI code.  Similar to the login, you can use the renderRegister() method to automatically generate the registration flow, based on the registration flow configured in the default AuthFlow in your AppSpace.
-Registration.js
+Next, let's add the registration UI code. As with login, you can use the renderRegister() method to automatically generate the registration flow based on the registration flow configured in the default AuthFlow in your AppSpace.
+
+Registration.js:
+
 ```ts
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -392,12 +404,14 @@ const Registration = ({ setToken }) => {
 export default Registration;
 
 ```
-At this point you can start your application with yarn. 
+At this point, you can start your application with yarn. 
+
 To start:
+
 ```ts
 yarn start
 ```
-If there were no issues with your code, this will open a browser with your application running where you should see a login form similar to what is shown below.
+If there were no issues with your code, a browser opens with your application running. You should see a login form similar to what is shown below.
 
 
 ![Login](images/login.jpg)
